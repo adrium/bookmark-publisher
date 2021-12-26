@@ -1,0 +1,11 @@
+{
+	"bookmarks": "Bookmarks"
+	, "guid": "da1c8069-14d9-4db0-9632-bee2c4c3fb6f"
+	, "template": {
+		"file": "template.html"
+		, "folder": "<h{level}>{name}</h2>\n<ul>\n{children}\n</ul>\n"
+		, "item": "<li><a href=\"{url}\"><img src=\"{thumbnail}\">{name}</a></li>\n"
+	}
+	, "thumbnail-disabled": [ "youtube-dl", "--get-thumbnail" ]
+	, "thumbnail-placeholder": "https://images.unsplash.com/photo-1539375665275-f9de415ef9ac?h=200"
+}
