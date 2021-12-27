@@ -9,7 +9,9 @@ def main(config: dict):
 	root = loadJson(config['bookmarks'])
 	root = root['roots']
 	root = { 'guid': '-', 'children': [ root['bookmark_bar'], root['other'], root['synced'], ] }
-	root = { 'children': [ findGuid(root, config['guid']) ] }
+	root = findGuid(root, config['guid'])
+
+	structureBookmarks(root)
 
 	output = processBookmarks(root, config)
 	output = loadFile(config['template']['file']).replace('{output}', output)
@@ -28,24 +30,47 @@ def findGuid(root: dict, guid: str):
 
 	return None
 
-def processBookmarks(root: dict, config: dict, level: int = 0):
+def structureBookmarks(root: dict):
 
-	root['level'] = level
-	result = ''
+	nodes = root.pop('children', [])
+	root['children'] = []
+	root['items'] = []
+
+	for node in nodes:
+		if 'children' in node:
+			root['children'].append(node)
+			structureBookmarks(node)
+		else:
+			root['items'].append(node)
+
+def processBookmarks(root: dict, config: dict, level: int = 1):
+
+	children = items = ''
 
 	for node in root['children']:
+		children += processBookmarks(node, config, level + 1)
 
-		if 'children' in node:
-			node['children'] = processBookmarks(node, config, level + 1)
-			result += config['template']['folder'].format_map(node)
+	for node in root['items']:
+		err = 'nothumb'
+		if 'thumbnail' in config:
+			node['thumbnail'], err = exec(config['thumbnail'] + [ node['url'] ])
+		if err != '':
+			node['thumbnail'] = config['thumbnail-placeholder']
+		items += config['template']['item'].format_map(node)
 
-		else:
-			err = 'nothumb'
-			if 'thumbnail' in config:
-				node['thumbnail'], err = exec(config['thumbnail'] + [ node['url'] ])
-			if err != '':
-				node['thumbnail'] = config['thumbnail-placeholder']
-			result += config['template']['item'].format_map(node)
+	root['children'] = children
+	root['items'] = items
+	root['level'] = level
+
+	if root['children'] == '':
+		root['children'] = config['template']['folder-empty']
+
+	if root['items'] == '':
+		root['items'] = config['template']['list-empty']
+	else:
+		root['items'] = config['template']['list'].format_map(root)
+
+	result = config['template']['folder'].format_map(root)
 
 	return result
 

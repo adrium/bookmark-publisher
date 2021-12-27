@@ -1,0 +1,71 @@
+body {
+	background: #333;
+	font-family: sans-serif;
+}
+
+a {
+	color: #ccc;
+	text-decoration: none;
+}
+
+#bookmarks ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+#bookmarks ul {
+	display: flex;
+	flex-wrap: wrap;
+	overflow: hidden;
+}
+
+#bookmarks li {
+	flex-grow: 1;
+	margin: 8px;
+	width: 30em;
+	overflow: hidden;
+	box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+	border-radius: 16px;
+}
+
+#bookmarks li a {
+	display: block;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	margin-right: 16px;
+}
+
+#bookmarks li a img {
+	margin-right: 16px;
+	width: 96px;
+	height: 54px;
+	object-fit: cover;
+	vertical-align: middle;
+}
+
+#bookmarks section {
+	margin-left: 20px;
+}
+
+#bookmarks input[type=checkbox] {
+	display: none;
+}
+
+#bookmarks label {
+	cursor: pointer;
+}
+
+#bookmarks label::before {
+	content: '▾ ';
+}
+
+#bookmarks input:checked ~ * label::before {
+	content: '▸ ';
+}
+
+#bookmarks input:checked ~ section,
+#bookmarks input:checked ~ ul {
+	display: none;
+}
