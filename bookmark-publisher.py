@@ -1,7 +1,7 @@
 import glob
 import json
-import subprocess
 from pybars import Compiler
+from urllib.request import urlopen
 
 def main(config: dict):
 
@@ -58,11 +58,29 @@ def processBookmarks(root: dict, config: dict, level: int = 1):
 		processBookmarks(node, config, level + 1)
 
 	for node in root['items']:
-		err = 'nothumb'
-		if 'thumbnail' in config:
-			node['thumbnail'], err = exec(config['thumbnail'] + [ node['url'] ])
-		if err != '':
-			node['thumbnail'] = config.get('thumbnail-placeholder', '')
+		node['thumbnail'] = config.get('thumbnail-placeholder', '')
+		try:
+			node['thumbnail'] = getThumbnail(node['url'])
+		except Exception as e:
+			pass
+
+def getThumbnail(url: str):
+	ytid = None
+	if '/watch' in url:
+		ytid = url.split('v=')[1].split('&')[0]
+	if 'youtu.be/' in url:
+		ytid = url.split('youtu.be/')[1].split('?')[0]
+	if ytid != None:
+		return 'https://i.ytimg.com/vi/ID/hqdefault.jpg'.replace('ID', ytid)
+
+	html = ''
+	with urlopen(url) as dl:
+		html = dl.read().decode('utf-8')
+
+	if '"og:image"' in html:
+		return html.split('"og:image"')[1].split('content="')[1].split('"')[0]
+
+	raise RuntimeError('No thumbnail found')
 
 def loadTemplates(suffix: str):
 	compiler = Compiler()
@@ -70,14 +88,6 @@ def loadTemplates(suffix: str):
 	for file in glob.glob('*' + suffix):
 		name = file.replace(suffix, '')
 		result[name] = compiler.compile(loadFile(file))
-	return result
-
-def exec(cmd: list, input: str = ''):
-	pipe = subprocess.PIPE
-	p = subprocess.run(cmd, input = input.encode('utf8'), stdout = pipe, stderr = pipe)
-	result = (p.stdout.decode('utf8').strip(), p.stderr.decode('utf8').strip())
-	if p.returncode != 0 and result[1] == '':
-		result = (result[0], 'Process returned %d' % p.returncode)
 	return result
 
 def loadConfig(files: str):
