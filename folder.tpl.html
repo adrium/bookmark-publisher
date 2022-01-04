@@ -1,0 +1,12 @@
+<section>
+<input id="collapsible-{{id}}" type="checkbox" checked>
+<h{{level}}><label for="collapsible-{{id}}">{{name}}</label></h{{level}}>
+{{#children}}
+{{>folder}}
+{{/children}}
+<ul>
+{{#items}}
+ <li><a target="ak-music" href="{{url}}"><img loading="lazy" src="{{thumbnail}}">{{name}}</a></li>
+{{/items}}
+</ul>
+</section>

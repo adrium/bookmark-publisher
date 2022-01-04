@@ -2,14 +2,8 @@
 	"bookmarks": "Bookmarks"
 	, "guid": "da1c8069-14d9-4db0-9632-bee2c4c3fb6f"
 	, "guid-other": "82b081ec-3dd3-529c-8475-ab6c344590dd"
-	, "template": {
-		"file": "template.html"
-		, "folder": "<section><input id=\"collapsible-{id}\" type=\"checkbox\" checked>\n<h{level}><label for=\"collapsible-{id}\">{name}</label></h{level}>\n{children}{items}</section>\n\n"
-		, "folder-empty": ""
-		, "list": "<ul>{items}</ul>"
-		, "list-empty": "<section>(no items)</section>"
-		, "item": "<li><a target=\"ak-music\" href=\"{url}\"><img loading=\"lazy\" src=\"{thumbnail}\">{name}</a></li>\n"
-	}
+	, "template": "index"
+	, "suffix": ".tpl.html"
 	, "thumbnail": [ "youtube-dl", "--get-thumbnail" ]
 	, "thumbnail-placeholder": "https://images.unsplash.com/photo-1539375665275-f9de415ef9ac?h=200"
 }

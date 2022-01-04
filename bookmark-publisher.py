@@ -1,10 +1,11 @@
 import glob
 import json
-import re
 import subprocess
-import time
+from pybars import Compiler
 
 def main(config: dict):
+
+	templates = loadTemplates(config['suffix'])
 
 	root = loadJson(config['bookmarks'])
 	root = root['roots']
@@ -12,9 +13,9 @@ def main(config: dict):
 	root = findGuid(root, config['guid'])
 
 	structureBookmarks(root)
+	processBookmarks(root, config)
 
-	output = processBookmarks(root, config)
-	output = loadFile(config['template']['file']).replace('{output}', output)
+	output = templates[config['template']](root, partials = templates)
 
 	print(output)
 
@@ -45,10 +46,10 @@ def structureBookmarks(root: dict):
 
 def processBookmarks(root: dict, config: dict, level: int = 1):
 
-	children = items = ''
+	root['level'] = level
 
 	for node in root['children']:
-		children += processBookmarks(node, config, level + 1)
+		processBookmarks(node, config, level + 1)
 
 	for node in root['items']:
 		err = 'nothumb'
@@ -56,22 +57,13 @@ def processBookmarks(root: dict, config: dict, level: int = 1):
 			node['thumbnail'], err = exec(config['thumbnail'] + [ node['url'] ])
 		if err != '':
 			node['thumbnail'] = config['thumbnail-placeholder']
-		items += config['template']['item'].format_map(node)
 
-	root['children'] = children
-	root['items'] = items
-	root['level'] = level
-
-	if root['children'] == '':
-		root['children'] = config['template']['folder-empty']
-
-	if root['items'] == '':
-		root['items'] = config['template']['list-empty']
-	else:
-		root['items'] = config['template']['list'].format_map(root)
-
-	result = config['template']['folder'].format_map(root)
-
+def loadTemplates(suffix: str):
+	compiler = Compiler()
+	result = {}
+	for file in glob.glob('*' + suffix):
+		name = file.replace(suffix, '')
+		result[name] = compiler.compile(loadFile(file))
 	return result
 
 def exec(cmd: list, input: str = ''):
