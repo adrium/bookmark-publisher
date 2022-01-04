@@ -5,17 +5,23 @@ from pybars import Compiler
 
 def main(config: dict):
 
-	templates = loadTemplates(config['suffix'])
+	templates = loadTemplates(config.get('suffix', '.tpl.html'))
+	render = templates[config.get('template', 'index')]
 
-	root = loadJson(config['bookmarks'])
+	nilguid = '00000000-0000-0000-0000-000000000000'
+	root = loadJson(config.get('bookmarks', 'Bookmarks'))
 	root = root['roots']
-	root = { 'guid': '-', 'children': [ root['bookmark_bar'], root['other'], root['synced'], ] }
-	root = findGuid(root, config['guid'])
+	root = {
+		'children': [ root['bookmark_bar'], root['other'], root['synced'] ],
+		'guid': nilguid, 'id': 'root', 'name': 'root',
+	}
+
+	root = findGuid(root, config.get('guid', nilguid))
 
 	structureBookmarks(root)
 	processBookmarks(root, config)
 
-	output = templates[config['template']](root, partials = templates)
+	output = render(root, partials = templates)
 
 	print(output)
 
@@ -56,7 +62,7 @@ def processBookmarks(root: dict, config: dict, level: int = 1):
 		if 'thumbnail' in config:
 			node['thumbnail'], err = exec(config['thumbnail'] + [ node['url'] ])
 		if err != '':
-			node['thumbnail'] = config['thumbnail-placeholder']
+			node['thumbnail'] = config.get('thumbnail-placeholder', '')
 
 def loadTemplates(suffix: str):
 	compiler = Compiler()
