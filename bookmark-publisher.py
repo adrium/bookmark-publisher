@@ -1,5 +1,6 @@
 import glob
 import json
+from datetime import datetime
 from pybars import Compiler
 from urllib.request import urlopen
 
@@ -7,6 +8,7 @@ def main(config: dict):
 
 	templates = loadTemplates(config.get('suffix', '.tpl.html'))
 	render = templates[config.get('template', 'index')]
+	datefmt = config.get('datefmt', '%d %b %Y at %H:%M %Z')
 
 	nilguid = '00000000-0000-0000-0000-000000000000'
 	root = loadJson(config.get('bookmarks', 'Bookmarks'))
@@ -17,6 +19,8 @@ def main(config: dict):
 	}
 
 	root = findGuid(root, config.get('guid', nilguid))
+
+	root['now'] = datetime.utcnow().strftime(datefmt)
 
 	structureBookmarks(root)
 	processBookmarks(root, config)

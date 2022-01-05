@@ -3,9 +3,13 @@ body {
 	font-family: sans-serif;
 }
 
-a {
+body, a {
 	color: #ccc;
 	text-decoration: none;
+}
+
+p#note a::before {
+	content: url(https://icons.getbootstrap.com/assets/icons/github.svg) " ";
 }
 
 #bookmarks ul {
