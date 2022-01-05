@@ -1,5 +1,5 @@
 <section>
-<input id="collapsible-{{id}}" type="checkbox" checked>
+<input id="collapsible-{{id}}" type="checkbox" {{#if is_not_level1}}checked{{/if}}>
 <h{{level}}><label for="collapsible-{{id}}">{{name}}</label></h{{level}}>
 {{#children}}
 {{>folder}}

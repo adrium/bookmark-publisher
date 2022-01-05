@@ -53,6 +53,8 @@ def structureBookmarks(root: dict):
 def processBookmarks(root: dict, config: dict, level: int = 1):
 
 	root['level'] = level
+	root.update({ 'is_level%d' % i : i == level for i in range(1, 3) })
+	root.update({ 'is_not_level%d' % i : i != level for i in range(1, 3) })
 
 	for node in root['children']:
 		processBookmarks(node, config, level + 1)
