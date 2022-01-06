@@ -65,6 +65,8 @@ def processBookmarks(root: dict, config: dict, level: int = 1):
 
 	for node in root['items']:
 		node['thumbnail'] = config.get('thumbnail-placeholder', '')
+		if not config.get('thumbnail', True):
+			continue
 		try:
 			node['thumbnail'] = getThumbnail(node['url'])
 		except Exception as e:
@@ -96,9 +98,9 @@ def loadTemplates(suffix: str):
 		result[name] = compiler.compile(loadFile(file))
 	return result
 
-def loadConfig(files: str):
+def loadConfig(files: list):
 	result = {}
-	for file in glob.glob(files):
+	for file in files:
 		result.update(loadJson(file))
 	return result
 
@@ -115,4 +117,5 @@ def loadFile(filename: str) -> str:
 		return f.read()
 
 if __name__ == '__main__':
-	main(loadConfig('*.json'))
+	import sys
+	main(loadConfig(sys.argv[1:]))
