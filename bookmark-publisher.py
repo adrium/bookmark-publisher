@@ -1,6 +1,6 @@
 import glob
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from pybars import Compiler
 from urllib.request import urlopen
 
@@ -8,7 +8,7 @@ def main(cfg: dict):
 
 	defaults = {
 		'bookmarks': 'Bookmarks',
-		'datefmt': '%d %b %Y at %H:%M',
+		'datefmt': '%d %b %Y %H:%M',
 		'guid': '00000000-0000-0000-0000-000000000000',
 		'template': 'index',
 		'suffix': '.tpl.html',
@@ -18,6 +18,8 @@ def main(cfg: dict):
 
 	config = defaults.copy()
 	config.update(cfg)
+	config['date_epoch'] = datetime(1601, 1, 1)
+	config['date_scale'] = 1e6
 
 	templates = loadTemplates(config['suffix'])
 	render = templates[config['template']]
@@ -75,6 +77,11 @@ def processBookmarks(root: dict, config: dict, level: int = 1):
 		processBookmarks(node, config, level + 1)
 
 	for node in root['items']:
+		for k in [ k for k in node.keys() if k.startswith('date_') ]:
+			date = timedelta(seconds = int(node['date_added']) / config['date_scale'])
+			date = date + config['date_epoch']
+			node[k + '_fmt'] = date.strftime(config['datefmt'])
+
 		node['thumbnail'] = config['thumbnail-placeholder']
 		if not config['thumbnail']:
 			continue
