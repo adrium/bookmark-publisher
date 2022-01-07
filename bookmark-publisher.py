@@ -4,23 +4,34 @@ from datetime import datetime
 from pybars import Compiler
 from urllib.request import urlopen
 
-def main(config: dict):
+def main(cfg: dict):
 
-	templates = loadTemplates(config.get('suffix', '.tpl.html'))
-	render = templates[config.get('template', 'index')]
-	datefmt = config.get('datefmt', '%d %b %Y at %H:%M %Z')
+	defaults = {
+		'bookmarks': 'Bookmarks',
+		'datefmt': '%d %b %Y at %H:%M',
+		'guid': '00000000-0000-0000-0000-000000000000',
+		'template': 'index',
+		'suffix': '.tpl.html',
+		'thumbnail': True,
+		'thumbnail-placeholder': '',
+	}
 
-	nilguid = '00000000-0000-0000-0000-000000000000'
-	root = loadJson(config.get('bookmarks', 'Bookmarks'))
+	config = defaults.copy()
+	config.update(cfg)
+
+	templates = loadTemplates(config['suffix'])
+	render = templates[config['template']]
+
+	root = loadJson(config['bookmarks'])
 	root = root['roots']
 	root = {
 		'children': [ root['bookmark_bar'], root['other'], root['synced'] ],
-		'guid': nilguid, 'id': 'root', 'name': 'root',
+		'guid': defaults['guid'], 'id': 'root', 'name': 'root',
 	}
 
-	root = findGuid(root, config.get('guid', nilguid))
+	root = findGuid(root, config['guid'])
 
-	root['now'] = datetime.utcnow().strftime(datefmt)
+	root['now'] = datetime.utcnow().strftime(config['datefmt'])
 
 	structureBookmarks(root)
 	processBookmarks(root, config)
@@ -64,8 +75,8 @@ def processBookmarks(root: dict, config: dict, level: int = 1):
 		processBookmarks(node, config, level + 1)
 
 	for node in root['items']:
-		node['thumbnail'] = config.get('thumbnail-placeholder', '')
-		if not config.get('thumbnail', True):
+		node['thumbnail'] = config['thumbnail-placeholder']
+		if not config['thumbnail']:
 			continue
 		try:
 			node['thumbnail'] = getThumbnail(node['url'])
