@@ -6,3 +6,6 @@ a list based on a template from a subset of it.
 Uses [Handlebars](https://handlebarsjs.com/) templates.
 Recommended to install [pybars4](https://github.com/up9inc/pybars4).
 (One of the Mustache-like engines that supports recursive templates.)
+
+	python bookmark-publisher.py guid.json plain.json > music.txt
+	python bookmark-publisher.py guid.json html.json > music.html
