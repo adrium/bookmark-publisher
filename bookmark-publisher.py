@@ -21,6 +21,8 @@ def main(cfg: dict):
 	config['date_epoch'] = datetime(1601, 1, 1)
 	config['date_scale'] = 1e6
 
+	print(f'Rendering to {config["output"]}')
+
 	templates = loadTemplates(config['suffix'])
 	render = templates[config['template']]
 
@@ -40,7 +42,7 @@ def main(cfg: dict):
 
 	output = render(root, partials = templates)
 
-	print(output)
+	saveFile(config['output'], output)
 
 def findGuid(root: dict, guid: str):
 
@@ -85,6 +87,7 @@ def processBookmarks(root: dict, config: dict, level: int = 1):
 		if not config['thumbnail']:
 			continue
 		try:
+			print(f'Getting thumbnail for {node["url"]}')
 			node['thumbnail'] = getThumbnail(node['url'])
 		except Exception as e:
 			pass
@@ -132,6 +135,10 @@ def saveJson(file: str, x: dict):
 def loadFile(filename: str) -> str:
 	with open(filename) as f:
 		return f.read()
+
+def saveFile(fn, s):
+	with open(fn, 'w') as f:
+		f.write(s)
 
 if __name__ == '__main__':
 	import sys
