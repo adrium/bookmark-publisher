@@ -6,17 +6,18 @@ from urllib.request import urlopen
 
 def main(cfg: dict):
 
-	defaults = {
+	nullguid = '00000000-0000-0000-0000-000000000000'
+
+	config = {
 		'bookmarks': 'Bookmarks',
 		'datefmt': '%d %b %Y %H:%M',
-		'guid': '00000000-0000-0000-0000-000000000000',
+		'guid': nullguid,
 		'template': 'index',
 		'suffix': '.tpl.html',
 		'thumbnail': True,
 		'thumbnail-placeholder': '',
 	}
 
-	config = defaults.copy()
 	config.update(cfg)
 	config['date_epoch'] = datetime(1601, 1, 1)
 	config['date_scale'] = 1e6
@@ -30,7 +31,7 @@ def main(cfg: dict):
 	root = root['roots']
 	root = {
 		'children': [ root['bookmark_bar'], root['other'], root['synced'] ],
-		'guid': defaults['guid'], 'id': 'root', 'name': 'root',
+		'guid': nullguid, 'id': 'root', 'name': 'root',
 	}
 
 	root = findGuid(root, config['guid'])
