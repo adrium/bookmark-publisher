@@ -1,0 +1,6 @@
+{
+	"template": "m3uplaylist"
+	, "suffix": ".tpl.txt"
+	, "output": "music.m3u"
+	, "thumbnail": false
+}

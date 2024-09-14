@@ -1,0 +1,11 @@
+{{#children}}
+{{>m3uitem}}
+{{/children}}
+{{#if items}}
+#EXTGRP:{{name}}
+{{/if}}
+{{#items}}
+#EXTINF:-1,{{name}}
+{{url}}
+
+{{/items}}

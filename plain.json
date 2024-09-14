@@ -1,6 +1,0 @@
-{
-	"template": "plain"
-	, "suffix": ".tpl.txt"
-	, "output": "music.txt"
-	, "thumbnail": false
-}
