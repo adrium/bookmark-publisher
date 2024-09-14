@@ -79,7 +79,7 @@ def processBookmarks(root: dict, config: dict, level: int = 1):
 
 	for node in root['items']:
 		for k in [ k for k in node.keys() if k.startswith('date_') ]:
-			date = timedelta(seconds = int(node['date_added']) / config['date_scale'])
+			date = timedelta(seconds = int(node[k]) / config['date_scale'])
 			date = date + config['date_epoch']
 			node[k + '_fmt'] = date.strftime(config['datefmt'])
 
