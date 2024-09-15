@@ -14,13 +14,19 @@ def main(cfg: dict):
 		'guid': nullguid,
 		'template': 'index',
 		'suffix': '.tpl.html',
-		'thumbnail': True,
+		'thumbnail': 'thumbnails.json',
 		'thumbnail-placeholder': '',
 	}
 
 	config.update(cfg)
 	config['date_epoch'] = datetime(1601, 1, 1)
 	config['date_scale'] = 1e6
+
+	if config['thumbnail']:
+		try:
+			config['thumbnail-cache'] = loadJson(config['thumbnail'])
+		except:
+			config['thumbnail-cache'] = {}
 
 	print(f'Rendering to {config["output"]}')
 
@@ -39,11 +45,14 @@ def main(cfg: dict):
 	root['now'] = datetime.utcnow().strftime(config['datefmt'])
 
 	structureBookmarks(root)
-	processBookmarks(root, config)
+	processBookmarks(config, root)
 
 	output = render(root, partials = templates)
 
 	saveFile(config['output'], output)
+
+	if config['thumbnail']:
+		saveJson(config['thumbnail'], config['thumbnail-cache'])
 
 def findGuid(root: dict, guid: str):
 
@@ -70,13 +79,13 @@ def structureBookmarks(root: dict):
 		else:
 			root['items'].append(node)
 
-def processBookmarks(root: dict, config: dict, level: int = 1):
+def processBookmarks(config: dict, root: dict, level: int = 1):
 
 	root['level'] = level
 	root.update({ 'is_level%d' % i : i == level for i in range(1, 9) })
 
 	for node in root['children']:
-		processBookmarks(node, config, level + 1)
+		processBookmarks(config, node, level + 1)
 
 	for node in root['items']:
 		for k in [ k for k in node.keys() if k.startswith('date_') ]:
@@ -84,32 +93,39 @@ def processBookmarks(root: dict, config: dict, level: int = 1):
 			date = date + config['date_epoch']
 			node[k + '_fmt'] = date.strftime(config['datefmt'])
 
-		node['thumbnail'] = config['thumbnail-placeholder']
 		if not config['thumbnail']:
 			continue
-		try:
-			print(f'Getting thumbnail for {node["url"]}')
-			node['thumbnail'] = getThumbnail(node['url'])
-		except Exception as e:
-			pass
 
-def getThumbnail(url: str):
+		cache = config['thumbnail-cache']
+
+		if node['url'] in cache:
+			node['thumbnail'] = cache[node['url']]
+		else:
+			print(f'Getting thumbnail for {node["url"]}')
+			node['thumbnail'] = getThumbnail(node['url'], config['thumbnail-placeholder'])
+			cache[node['url']] = node['thumbnail']
+
+def getThumbnail(url: str, fallback: str):
 	ytid = None
 	if '/watch' in url:
 		ytid = url.split('v=')[1].split('&')[0]
 	if 'youtu.be/' in url:
 		ytid = url.split('youtu.be/')[1].split('?')[0]
 	if ytid != None:
-		return 'https://i.ytimg.com/vi/ID/hqdefault.jpg'.replace('ID', ytid)
+		return 'https://i.ytimg.com/vi/ID/mqdefault.jpg'.replace('ID', ytid)
 
 	html = ''
-	with urlopen(url) as dl:
-		html = dl.read().decode('utf-8')
+
+	try:
+		with urlopen(url) as dl:
+			html = dl.read().decode('utf-8')
+	except:
+		return fallback
 
 	if '"og:image"' in html:
 		return html.split('"og:image"')[1].split('content="')[1].split('"')[0]
 
-	raise RuntimeError('No thumbnail found')
+	return fallback
 
 def loadTemplates(suffix: str):
 	compiler = Compiler()
