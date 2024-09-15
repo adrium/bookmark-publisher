@@ -42,7 +42,7 @@ def main(cfg: dict):
 
 	root = findGuid(root, config['guid'])
 
-	root['now'] = datetime.utcnow().strftime(config['datefmt'])
+	root['date_now_fmt'] = datetime.now().strftime(config['datefmt'])
 
 	structureBookmarks(root)
 	processBookmarks(config, root)
